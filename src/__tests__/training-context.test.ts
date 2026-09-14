@@ -6,7 +6,7 @@ import { buildTrainingContextAnalysis } from "../training-context.js";
 function planned(overrides: Partial<ScheduledWorkout> = {}): ScheduledWorkout {
   return {
     planId: "plan", idInPlan: "1", planProgramId: "1", date: "20260905", sortNo: 1,
-    workoutId: "workout", name: "Fondo específico RAS", sportType: 2, duration: 21600, distance: 0,
+    workoutId: "workout", name: "Long endurance session", sportType: 2, duration: 21600, distance: 0,
     ...overrides,
   };
 }

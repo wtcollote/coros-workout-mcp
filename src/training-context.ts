@@ -131,7 +131,7 @@ export function buildTrainingContextAnalysis(input: TrainingContextInput): Recor
     if (previousDemanding && demanding(proposed)) issues.push({ severity: "warning", code: "consecutive_demanding_days", message: "The proposal creates consecutive demanding days.", evidence: { previous: previousDemanding.name } });
     if (input.profile.constraints.some((item) => item.id === "hip_cam") && ["running", "trail"].includes(targetKind)) {
       const recentImpact = completed.filter((item) => ["running", "trail"].includes(kind(item.sportType ?? 0, item.name ?? "")) && daysBetween(item.date, proposed.date) >= 0 && daysBetween(item.date, proposed.date) <= 2);
-      if (recentImpact.length) issues.push({ severity: "warning", code: "hip_cam_impact_density", message: "Running/trail impact is repeated within 48 h under the declared hip CAM constraint.", evidence: { recentImpact: recentImpact.map((item) => ({ date: item.date, name: item.name })) } });
+      if (recentImpact.length) issues.push({ severity: "warning", code: "impact_density_warning", message: "Running/trail impact is repeated within 48 h while an impact-sensitive constraint is active.", evidence: { recentImpact: recentImpact.map((item) => ({ date: item.date, name: item.name })) } });
     }
   }
 

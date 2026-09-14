@@ -6,7 +6,7 @@ describe("Athlete Intelligence v2.1",()=>{
  it("detects substantial residual fatigue after a high-load long ride",()=>{const r:any=buildResidualFatigueModel(input);expect(["high","very_high"]).toContain(r.band);});
  it("reduces dose after major residual stress",()=>{const r:any=buildDoseOptimizer(input,7200);expect(r.doseFactor).toBeLessThan(1);expect(r.recommendedDurationSeconds).toBeLessThan(7200);});
  it("builds bounded readiness index",()=>{const r:any=buildEventReadiness({...input,objective:{name:"A",eventDate:"20260918",priority:"A"}});expect(r.readinessIndex).toBeGreaterThanOrEqual(0);expect(r.readinessIndex).toBeLessThanOrEqual(100);});
- it("enters taper at 12 days for A objective",()=>{const r:any=buildSeasonStrategy({...input,objective:{name:"RAS",eventDate:"20260918",priority:"A",discipline:"ultra_endurance"}});expect(r.inferredPhase).toBe("taper");});
+ it("enters taper at 12 days for A objective",()=>{const r:any=buildSeasonStrategy({...input,objective:{name:"A Event",eventDate:"20260918",priority:"A",discipline:"ultra_endurance"}});expect(r.inferredPhase).toBe("taper");});
 });
 
 it("keeps performance trends discipline-specific", async()=>{

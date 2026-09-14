@@ -11,7 +11,7 @@ This release makes professional context a server-side invariant rather than a ch
 - `coros_read` operation `training_context_analysis` with configurable 7–28 day lookback/lookahead and a 14+14 default.
 - `coros_read` operation `validate_calendar_change` for read-only preflight.
 - Plan-versus-completed matching, key-session detection and conservative residual-stress flags.
-- Calendar checks for post-long-session recovery, same-day stacking, completed work, strength near key sessions, consecutive demanding days and repeated impact under the declared hip-CAM constraint.
+- Calendar checks for post-long-session recovery, same-day stacking, completed work, strength near key sessions, consecutive demanding days and repeated impact when an athlete declares an impact-sensitive constraint.
 
 ## Write safety
 
@@ -26,13 +26,13 @@ This release makes professional context a server-side invariant rather than a ch
 
 The bundled private profile currently records:
 
-- primary discipline: ultra-cycling;
+- primary discipline: configurable endurance discipline;
 - secondary disciplines: road running, trail running and strength;
 - available signals: heart rate and cadence, without cycling power;
 - preferred analysis: heart rate, cadence and aerobic decoupling;
-- declared hip-CAM constraint;
+- optional athlete-declared constraints;
 - Monday–Sunday training week and protection of recovery after long sessions;
-- RAS 500 objective: approximately 505 km, 8,000 m ascent and 30-hour target.
+- event objectives: configurable distance, ascent, priority and target timing.
 
 The profile can be replaced with `ATHLETE_PROFILE_PATH` or `ATHLETE_PROFILE_JSON`. It must never contain COROS credentials. Acute symptoms and other changing facts remain request inputs.
 
