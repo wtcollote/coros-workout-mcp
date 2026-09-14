@@ -109,6 +109,9 @@ export async function login(
   password: string,
   region: Region = "eu"
 ): Promise<AuthData> {
+  if (process.env.COROS_PUBLIC_DEMO === "true") {
+    throw new Error("COROS authentication is disabled on the public demo server.");
+  }
   const apiUrl = REGION_URLS[region];
   const res = await fetch(`${apiUrl}/account/login`, {
     method: "POST",
@@ -136,6 +139,7 @@ export async function login(
 
 /** Get valid auth from stored file or env vars */
 export async function getValidAuth(): Promise<AuthData | null> {
+  if (process.env.COROS_PUBLIC_DEMO === "true") return null;
   // Try stored auth first
   const stored = loadAuth();
   if (stored) return stored;
