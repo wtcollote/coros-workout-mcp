@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "1",
+  "profileId": "example-athlete",
+  "primaryDiscipline": "general_endurance",
+  "secondaryDisciplines": [],
+  "preferredMetrics": [],
+  "availableMetrics": {
+    "power": null,
+    "heartRate": null,
+    "cadence": null
+  },
+  "constraints": [],
+  "planning": {
+    "weekStartsOn": "monday",
+    "protectLongSessionRecovery": true,
+    "requireContextGuardForCalendarWrites": true
+  },
+  "objectives": [],
+  "provenance": {
+    "source": "bundled generic template",
+    "lastReviewed": "2026-09-14",
+    "unknownValuesRemainNull": true
+  }
+}
