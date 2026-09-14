@@ -7,7 +7,7 @@ import type {
   TrainingDataProviderCapability,
 } from "./training-data-provider.js";
 
-export const DEFAULT_TRAINING_DATA_PROVIDER_ID = "coros";
+export const DEFAULT_TRAINING_DATA_PROVIDER_ID = process.env.TRAINING_DATA_PROVIDER_ID?.trim() || "coros";
 
 export function resolveTrainingDataProvider(
   providerId: string = DEFAULT_TRAINING_DATA_PROVIDER_ID,
