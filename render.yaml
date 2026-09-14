@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: coros-workout-mcp
+    runtime: docker
+    plan: free
+    healthCheckPath: /
+    envVars:
+      - key: COROS_ALLOW_UNOFFICIAL_MOBILE_LOGIN
+        value: "false"
+      - key: TRAINING_DATA_PROVIDER_ID
+        value: coros
