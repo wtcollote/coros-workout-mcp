@@ -1,0 +1,40 @@
+name: Patch public demo safety
+on:
+  push:
+    branches: [feature/chatgpt-demo-real-install]
+permissions:
+  contents: write
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch demo safety
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('src/coros-api.ts')
+          s=p.read_text()
+          old='''export async function login(\n  email: string,\n  password: string,\n  region: Region = "eu"\n): Promise<AuthData> {\n  const apiUrl = REGION_URLS[region];'''
+          new='''export async function login(\n  email: string,\n  password: string,\n  region: Region = "eu"\n): Promise<AuthData> {\n  if (process.env.COROS_PUBLIC_DEMO === "true") {\n    throw new Error("COROS authentication is disabled on the public demo server.");\n  }\n  const apiUrl = REGION_URLS[region];'''
+          if old not in s: raise SystemExit('login marker not found')
+          s=s.replace(old,new,1)
+          old2='''export async function getValidAuth(): Promise<AuthData | null> {\n  // Try stored auth first'''
+          new2='''export async function getValidAuth(): Promise<AuthData | null> {\n  if (process.env.COROS_PUBLIC_DEMO === "true") return null;\n  // Try stored auth first'''
+          if old2 not in s: raise SystemExit('getValidAuth marker not found')
+          s=s.replace(old2,new2,1)
+          p.write_text(s)
+          PY
+      - name: Validate
+        run: |
+          npm ci
+          npm test
+          npm run build
+      - name: Commit
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/coros-api.ts
+          git commit -m 'feat: hard-disable COROS auth on public demo'
+          git push origin feature/chatgpt-demo-real-install
