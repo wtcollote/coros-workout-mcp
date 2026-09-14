@@ -1,0 +1,32 @@
+{
+  "name": "coros-workout-mcp",
+  "version": "2.2.4",
+  "description": "MCP server for creating and managing COROS workouts and calendar entries",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/src/http-server.js",
+  "bin": {
+    "coros-workout-mcp": "dist/src/stdio-server.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepare-catalog": "tsx scripts/prepare-catalog.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "start": "node dist/src/http-server.js",
+    "start:stdio": "node dist/src/stdio-server.js",
+    "demo": "tsx scripts/demo.ts",
+    "doctor": "tsx scripts/doctor.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "fit-file-parser": "^5.0.2",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.1"
+  }
+}
