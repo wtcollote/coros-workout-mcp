@@ -22,6 +22,7 @@ import { analyzeTrainingContext, guardedAssignWorkoutToCalendar, guardedMoveSche
 import { buildAdaptiveCoachingDecision, buildLongitudinalAthleteModel, buildSeasonStrategy, evaluatePriorDecision, simulateTrainingChange } from "./adaptive-coaching-engine.js";
 import { coachStateStorageInfo, readCoachState, updateCoachState } from "./coach-state.js";
 import { buildAthleteIntelligence, buildRecoveryModel, buildResidualFatigueModel, buildSessionFingerprints, buildPerformanceTrend, buildDoseOptimizer, buildEventReadiness, buildAnomalyAndQuality } from "./athlete-intelligence.js";
+import { trainingDataStatus, setupCheck, listProviderActivities, trainingTrends, compareActivities, importActivityFile } from "./providers/training-data-analytics.js";
 
 export const CONNECTOR_VERSION = "2.2.4";
 export const EXPECTED_TOOL_COUNT = 56;
@@ -86,6 +87,13 @@ interface OperationDescriptor {
 }
 
 export const READ_OPERATIONS: OperationDescriptor[] = [
+  { name: "training_data_status", description: "Return provider availability, capabilities and the default training-data provider without exposing secrets.", input: {} },
+  { name: "setup_check", description: "Run a safe installation/configuration diagnostic for Node, COROS, optional providers and file analysis.", input: {} },
+  { name: "list_training_providers", description: "List configured training-data providers, their availability and capabilities.", input: {} },
+  { name: "list_provider_activities", description: "List normalized activities from any provider implementing the activities capability.", input: { providerId: "coros|strava|garmin", startDate: "YYYY-MM-DD", endDate: "YYYY-MM-DD", page: "optional integer", size: "optional integer" } },
+  { name: "training_trends", description: "Aggregate normalized training volume/load trends over configurable 7/28/90-style windows for any activity provider.", input: { providerId: "coros|strava|garmin", endDate: "YYYY-MM-DD", windows: "optional integer[] 1..365" } },
+  { name: "compare_activities", description: "Compare up to 10 normalized activities from any activity provider using a first-activity baseline.", input: { providerId: "coros|strava|garmin", startDate: "YYYY-MM-DD", endDate: "YYYY-MM-DD", activityIds: "optional string[]" } },
+  { name: "import_activity_file", description: "Analyze a base64 FIT file and return detailed FIT analysis plus a neutral activity summary; no platform account required.", input: { fitBase64: "base64 FIT bytes", name: "optional display name" } },
   { name: "get_official_recovery", description: "Read current official COROS recovery using the existing stored official session.", input: {} },
   { name: "coach_state", description: "Return the persistent trainer state written by ChatGPT: daily assessment, current plan and recent trainer changes for the external app.", input: {} },
   { name: "connector_status", description: "Return server version, authentication and feature metadata.", input: {} },
@@ -191,6 +199,11 @@ const ListActivitiesSchema = DateRangeSchema.extend({
   page: z.number().int().min(1).max(1000).default(1),
   size: z.number().int().min(1).max(100).default(30),
 });
+const ProviderActivitiesSchema = z.object({ providerId: z.string().min(1).default("coros"), startDate: z.string().min(1), endDate: z.string().min(1), page: z.number().int().min(1).max(1000).default(1), size: z.number().int().min(1).max(100).default(100) });
+const TrainingTrendsSchema = z.object({ providerId: z.string().min(1).default("coros"), endDate: z.string().min(1), windows: z.array(z.number().int().min(1).max(365)).min(1).max(12).default([7,28,90]) });
+const CompareActivitiesSchema = z.object({ providerId: z.string().min(1).default("coros"), startDate: z.string().min(1), endDate: z.string().min(1), activityIds: z.array(z.string().min(1)).max(10).optional() });
+const ImportActivityFileSchema = z.object({ fitBase64: z.string().min(1), name: z.string().min(1).max(200).optional() });
+
 const CalibrationSchema = z.object({
   sport: z.enum(["cycling", "road_running", "trail_running", "walking", "hiking"]),
   endDate: z.string().min(1),
@@ -331,6 +344,13 @@ export async function executeCompatibilityRead(operation: string, rawInput: Json
     const resolution = await resolveSleepRecords({ ...input, auth });
     return bridgeEnvelope(operation, { ...resolution, ...sleepMetadata(resolution), count: resolution.records.length });
   }
+  if (operation === "training_data_status" || operation === "list_training_providers") return bridgeEnvelope(operation, await trainingDataStatus());
+  if (operation === "setup_check") return bridgeEnvelope(operation, await setupCheck());
+  if (operation === "list_provider_activities") { const input = ProviderActivitiesSchema.parse(rawInput); return bridgeEnvelope(operation, await listProviderActivities(input)); }
+  if (operation === "training_trends") { const input = TrainingTrendsSchema.parse(rawInput); return bridgeEnvelope(operation, await trainingTrends(input.providerId, input.endDate, input.windows)); }
+  if (operation === "compare_activities") { const input = CompareActivitiesSchema.parse(rawInput); return bridgeEnvelope(operation, await compareActivities(input.providerId, input.startDate, input.endDate, input.activityIds)); }
+  if (operation === "import_activity_file") { const input = ImportActivityFileSchema.parse(rawInput); return bridgeEnvelope(operation, await importActivityFile(input.fitBase64, input.name)); }
+
   const auth = await requireAuth();
 
   if (operation === "dashboard_snapshot") {
