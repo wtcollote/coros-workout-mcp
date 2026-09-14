@@ -1,0 +1,1 @@
+process.env.TRAINING_DATA_PROVIDER_ID="demo";process.env.COROS_ALLOW_UNOFFICIAL_MOBILE_LOGIN="false";console.log("Starting COROS Workout MCP in DEMO mode on synthetic data...");await import("../src/http-server.js");
