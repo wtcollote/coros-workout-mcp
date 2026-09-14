@@ -1,24 +1,26 @@
-# Guía de conexión sin coste de hosting
+# Zero-cost hosting and connection guide
 
-Esta guía separa dos cosas distintas:
+**Language:** **English** · [Español](FREE-CONNECTION-GUIDE-ES.md)
 
-1. **Ejecutar el servidor MCP sin pagar hosting**.
-2. **Conectarlo a un cliente MCP** (ChatGPT u otro cliente compatible).
+This guide separates two different things:
 
-El servidor puede ejecutarse por **0 €**. La disponibilidad de MCP en ChatGPT depende del plan de ChatGPT y puede cambiar; no confundas "hosting gratis" con "todas las funciones de ChatGPT gratis".
+1. **Running the MCP server without paying for hosting**.
+2. **Connecting it to an MCP client** such as ChatGPT or another compatible client.
 
-## Opción A — 100% local, 0 € y sin hosting
+The server itself can run for **€0**. MCP availability in ChatGPT depends on your ChatGPT plan and can change, so do not confuse "free hosting" with "all ChatGPT MCP features are free".
 
-Es la opción más barata y privada.
+## Option A — 100% local, €0, no hosting
 
-### Requisitos
+This is the cheapest and most private option.
 
-- Node.js 22 recomendado.
+### Requirements
+
+- Node.js 22 recommended.
 - Git.
-- Una cuenta COROS.
-- Un cliente MCP que admita servidores locales por `stdio`.
+- A COROS account.
+- An MCP client that supports local `stdio` servers.
 
-### Pasos
+### Steps
 
 ```bash
 git clone https://github.com/OWNER/REPO.git
@@ -27,52 +29,52 @@ npm ci
 npm run build
 ```
 
-Crea un `.env` local a partir de `.env.example` y añade tus propias credenciales. **No subas `.env` a GitHub.**
+Create a local `.env` from `.env.example` and add your own credentials. **Never commit `.env` to GitHub.**
 
-Ejemplo mínimo:
+Minimal example:
 
 ```env
-COROS_EMAIL=tu-correo@example.com
-COROS_PASSWORD=tu-clave
+COROS_EMAIL=you@example.com
+COROS_PASSWORD=your-password
 COROS_REGION=eu
 COROS_ALLOW_UNOFFICIAL_MOBILE_LOGIN=false
 ```
 
-Para ejecutar por `stdio`:
+Run it through `stdio`:
 
 ```bash
 npm start
 ```
 
-Si tu cliente MCP permite declarar un comando local, configura Node para lanzar la salida compilada del servidor. No necesitas dominio, servidor cloud ni tarjeta bancaria.
+If your MCP client lets you configure a local command, point Node at the compiled server output. You do not need a domain, cloud server or payment card.
 
-### Ventajas
+### Advantages
 
-- 0 € de hosting.
-- Tus credenciales se quedan en tu equipo.
-- No expones el endpoint MCP a Internet.
-- Ideal para pruebas y uso personal.
+- €0 hosting cost.
+- Credentials remain on your own computer.
+- No MCP endpoint is exposed to the public Internet.
+- Good for testing and personal use.
 
-### Limitación
+### Limitation
 
-ChatGPT no se conecta directamente a un MCP local ordinario. La documentación oficial de OpenAI indica que los servidores locales requieren un mecanismo de túnel compatible; la disponibilidad de MCP completo también depende del plan. Si tu objetivo es exclusivamente ChatGPT, usa una de las opciones remotas siguientes y comprueba primero que tu plan permita la capacidad que necesitas.
+ChatGPT does not connect directly to an ordinary local MCP server. If ChatGPT is your only target, use one of the remote options below and first verify that your plan supports the MCP capabilities you need.
 
-Referencia oficial: https://help.openai.com/es-es/articles/12584461-developer-mode-and-mcp-apps-in-chatgpt
+Official reference: https://help.openai.com/en/articles/12584461-developer-mode-and-mcp-apps-in-chatgpt
 
 ---
 
-## Opción B — Render Free, 0 € de hosting para pruebas/hobby
+## Option B — Render Free, €0 hosting for testing/hobby use
 
-Render ofrece servicios web gratuitos con limitaciones y los presenta como adecuados para pruebas, hobby y demos, no para producción crítica.
+Render provides free web services with limitations and positions them for testing, hobby projects and demos rather than critical production workloads.
 
-Referencia oficial: https://render.com/docs/free
+Official reference: https://render.com/docs/free
 
-### Despliegue
+### Deployment
 
-1. Haz fork o clona este repositorio en tu cuenta.
-2. En Render, crea un **Web Service** desde el repositorio.
-3. El proyecto incluye `Dockerfile`, así que puedes usar despliegue Docker.
-4. Añade las variables de entorno en el panel de Render, nunca en Git:
+1. Fork or clone this repository into your GitHub account.
+2. In Render, create a **Web Service** from the repository.
+3. This project includes a `Dockerfile`, so you can deploy it as Docker.
+4. Add environment variables in the Render dashboard, never in Git:
 
 ```text
 COROS_EMAIL
@@ -81,41 +83,41 @@ COROS_REGION=eu
 COROS_ALLOW_UNOFFICIAL_MOBILE_LOGIN=false
 ```
 
-5. Despliega.
-6. Comprueba primero la raíz del servicio y después el endpoint MCP:
+5. Deploy the service.
+6. Verify the root endpoint first and then the MCP endpoint:
 
 ```text
-https://TU-SERVICIO.onrender.com/
-https://TU-SERVICIO.onrender.com/mcp
+https://YOUR-SERVICE.onrender.com/
+https://YOUR-SERVICE.onrender.com/mcp
 ```
 
-### Coste
+### Cost
 
-- Hosting: 0 € mientras permanezcas dentro de las condiciones del plan gratuito.
-- No necesitas pagar una instancia para hacer pruebas personales.
+- Hosting: €0 while you remain within the free-plan conditions.
+- You do not need a paid instance for personal testing.
 
-### Limitaciones
+### Limitations
 
-- El servicio gratuito puede suspenderse cuando no se usa y tardar en reactivarse.
-- No lo uses como infraestructura crítica.
-- No hagas público un endpoint MCP con credenciales de una cuenta personal sin una capa de autenticación adecuada.
+- A free service may sleep when idle and take time to wake up.
+- Do not use it as critical infrastructure.
+- Do not expose a personal MCP instance containing account credentials without an appropriate authentication layer.
 
 ---
 
-## Opción C — GitHub Codespaces, 0 € dentro de la cuota incluida
+## Option C — GitHub Codespaces, €0 within the included quota
 
-Las cuentas personales de GitHub incluyen una cuota mensual gratuita de Codespaces. A fecha de septiembre de 2026, GitHub Free incluye 120 horas de computación y 15 GB-mes de almacenamiento para cuentas personales.
+Personal GitHub accounts include a monthly Codespaces allowance. Always check the current allowance for your account before relying on it.
 
-Referencias oficiales:
+Official references:
 
-- https://docs.github.com/es/billing/concepts/product-billing/github-codespaces
-- https://docs.github.com/es/codespaces/developing-in-a-codespace/creating-a-codespace-for-a-repository
+- https://docs.github.com/en/billing/concepts/product-billing/github-codespaces
+- https://docs.github.com/en/codespaces/developing-in-a-codespace/creating-a-codespace-for-a-repository
 
-### Pasos
+### Steps
 
-1. Abre el repositorio en GitHub.
-2. `Code` → `Codespaces` → crea un Codespace.
-3. En la terminal:
+1. Open the repository on GitHub.
+2. Choose `Code` → `Codespaces` → create a Codespace.
+3. In the terminal:
 
 ```bash
 npm ci
@@ -123,82 +125,53 @@ npm run build
 npm start
 ```
 
-4. Define las credenciales como secretos del entorno o variables del Codespace. No las escribas en archivos versionados.
-5. Si necesitas acceso remoto, publica/reenruta el puerto que use el servidor siguiendo los controles de visibilidad de Codespaces.
-
-### Coste
-
-0 € mientras no superes la cuota gratuita mensual incluida en tu cuenta. Si no configuras gasto adicional, GitHub bloquea el uso cuando se agota la cuota en vez de seguir cobrando, según su documentación.
+4. Store credentials as environment secrets or Codespace variables. Do not write them into versioned files.
+5. If you need remote access, expose/forward the server port using the Codespaces visibility controls.
 
 ---
 
-## ¿Y Cloudflare Workers?
+# Connecting to ChatGPT
 
-Workers tiene un plan gratuito generoso (por ejemplo, 100.000 solicitudes/día según la documentación actual), pero **este proyecto no es un Worker nativo**: usa Node.js, sistema de archivos local y un servidor MCP pensado para un proceso persistente. Portarlo a Workers requeriría cambios de arquitectura y almacenamiento. No es la vía recomendada para empezar.
+The server side can cost €0, but ChatGPT MCP access depends on the plan and the capabilities currently enabled for your account.
 
-Referencia oficial: https://developers.cloudflare.com/workers/platform/limits/
+Official reference: https://help.openai.com/en/articles/12584461-developer-mode-and-mcp-apps-in-chatgpt
 
----
+Therefore, **it is not accurate to promise full ChatGPT + MCP + write access for €0 to every account**. What can be fully free is the server itself and its local execution or use on a free hosting tier.
 
-# Conexión con ChatGPT
+## Typical remote setup in ChatGPT
 
-La parte de servidor puede costar 0 €, pero el acceso MCP de ChatGPT depende del plan.
+When your plan/workspace supports custom MCP apps:
 
-Según la documentación oficial de OpenAI vigente en septiembre de 2026:
-
-- MCP completo con acciones de escritura/modificación está desplegándose para Business, Enterprise y Edu.
-- Pro puede usar conexiones MCP con permisos de lectura/obtención en modo desarrollador.
-- ChatGPT necesita un **servidor MCP remoto**; no conecta directamente a un servidor MCP local ordinario.
-
-Referencia: https://help.openai.com/es-es/articles/12584461-developer-mode-and-mcp-apps-in-chatgpt
-
-Por tanto, **no es correcto prometer ChatGPT + MCP completo + escritura por 0 € para cualquier cuenta**. Lo que sí puede ser 100% gratuito es el servidor y su ejecución local o en una capa gratuita de hosting.
-
-## Configuración remota típica en ChatGPT
-
-Cuando tu plan/espacio de trabajo permita aplicaciones MCP personalizadas:
-
-1. Despliega el servidor y obtén una URL HTTPS.
-2. Verifica que `/mcp` responde.
-3. En ChatGPT, entra en la configuración de Apps/Aplicaciones y habilita el modo desarrollador si tu plan lo permite.
-4. Crea una app/conector MCP personalizado.
-5. Introduce como endpoint:
+1. Deploy the server and obtain an HTTPS URL.
+2. Verify that `/mcp` responds.
+3. Enable Developer mode in ChatGPT if your plan supports it.
+4. Create a custom MCP app/connector.
+5. Use this endpoint:
 
 ```text
-https://TU-DOMINIO/mcp
+https://YOUR-DOMAIN/mcp
 ```
 
-6. Analiza las herramientas y revisa cuidadosamente los permisos antes de habilitar acciones de escritura.
+6. Review the tool permissions carefully before enabling write actions.
 
-No compartas el endpoint de una instancia personal con credenciales COROS embebidas o variables privadas.
-
----
-
-# Ruta recomendada para gastar 0 €
-
-Para una persona que solo quiere probar el proyecto:
-
-**Local (`stdio`) → 0 €**.
-
-Para tener una URL remota de pruebas:
-
-**Render Free → 0 € de hosting, con las limitaciones del plan gratuito**.
-
-Para desarrollo temporal en la nube:
-
-**GitHub Codespaces → 0 € dentro de la cuota incluida**.
-
-Para ChatGPT específicamente:
-
-**Comprueba primero la disponibilidad MCP de tu plan.** El repositorio y el hosting pueden ser gratuitos, pero el plan de ChatGPT puede ser el factor limitante.
+Do not share the endpoint of a personal instance that contains private COROS credentials or environment variables.
 
 ---
 
-# Seguridad mínima
+# Recommended €0 path
 
-- Nunca subas `.env`.
-- No publiques `COROS_EMAIL`, `COROS_PASSWORD`, tokens Strava ni tokens Garmin.
-- Usa una instancia por usuario/cuenta mientras el proyecto mantenga almacenamiento local de tokens.
-- Mantén `COROS_ALLOW_UNOFFICIAL_MOBILE_LOGIN=false` salvo que entiendas el riesgo de conflicto de sesión.
-- No expongas una instancia con acciones de escritura sin autenticación.
-- Antes de aceptar un Pull Request que toque autenticación, endpoints o almacenamiento de tokens, revisa el diff y ejecuta los tests.
+- **Local (`stdio`) → €0** for personal use and maximum privacy.
+- **Render Free → €0 hosting** for a remote test URL, subject to free-tier limits.
+- **GitHub Codespaces → €0 within the included quota** for temporary cloud development.
+- **ChatGPT:** first verify MCP availability for your plan.
+
+---
+
+# Minimum security checklist
+
+- Never commit `.env`.
+- Never publish `COROS_EMAIL`, `COROS_PASSWORD`, Strava tokens or Garmin tokens.
+- Use one instance per user/account while token storage remains local to the instance.
+- Keep `COROS_ALLOW_UNOFFICIAL_MOBILE_LOGIN=false` unless you understand the session-conflict risk.
+- Do not expose an instance with write actions without authentication.
+- Before accepting a Pull Request that changes authentication, endpoints or token storage, review the diff and run the tests.

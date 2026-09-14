@@ -8,6 +8,8 @@
 
 MCP server for creating and managing COROS strength, running and cycling workouts through the Training Hub API. It includes calendar management, weekly planning, validation and backups. This fork adds a Streamable HTTP endpoint for a private ChatGPT plugin while preserving stdio compatibility.
 
+**Zero-cost connection guide:** [English](docs/FREE-CONNECTION-GUIDE.md) · [Español](docs/FREE-CONNECTION-GUIDE-ES.md)
+
 
 ## Version 2.0 — Adaptive Coaching Engine
 
