@@ -47,10 +47,16 @@ Esta opción crea **tu propio servidor privado**. Tus credenciales no se compart
 
 ### Paso 1 — Crear tu copia en Render
 
-Cuando el repositorio sea público, abre:
+Abre este enlace:
 
 ```text
-https://render.com/deploy?repo=https://github.com/davidsegade/coros-workout-connector-o-coros-workout-chatgpt-public
+https://render.com/deploy?repo=https://github.com/wtcollote/coros-workout-mcp
+```
+
+Repositorio público:
+
+```text
+https://github.com/wtcollote/coros-workout-mcp
 ```
 
 Render utilizará el archivo `render.yaml` incluido en el proyecto.
