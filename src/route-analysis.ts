@@ -207,7 +207,7 @@ async function fetchMetNorway(point: { latitude: number; longitude: number; elev
   if (cached && cached.expiresAt > Date.now()) return cached.value as HourlyWeather;
   const response = await fetch(url, {
     headers: {
-      "user-agent": "coros-workout-chatgpt/1.9.2 github.com/davidsegade/coros-workout-chatgpt",
+      "user-agent": "coros-workout-mcp/2.2.4",
       "accept-encoding": "gzip, deflate",
     },
   });

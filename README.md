@@ -185,7 +185,7 @@ The bridge does not replace the dedicated tools. It is a compatibility fallback.
 
 An old conversation must load version 1.13.0 once before it can use the bridge. A conversation that never loaded this plugin cannot be updated by the MCP server itself.
 
-See [docs/NEXT-IMPROVEMENTS.md](docs/NEXT-IMPROVEMENTS.md) for the prioritized roadmap.
+See [docs/NEXT-IMPROVEMENTS.md](docs/NEXT-IMPROVEMENTS.md) for the prioritized roadmap. For zero-cost hosting and connection options, see [docs/FREE-CONNECTION-GUIDE.md](docs/FREE-CONNECTION-GUIDE.md).
 
 `update_workout` uses clone-and-replace semantics because COROS does not expose a stable documented in-place editing API. The original is retained by default. `summarize_planned_load` reports planned volume; it is not COROS physiological Training Load.
 
@@ -203,7 +203,7 @@ The compatibility escape hatch `COROS_ALLOW_UNOFFICIAL_MOBILE_LOGIN=true` restor
 
 ### Persistent athlete profile and calendar safety
 
-Version 1.15.0 bundles a versioned private-athlete profile so stable facts do not depend on chat memory. The default profile records ultra-cycling as the primary discipline, HR/cadence/decoupling as preferred signals, absence of power data, Monday-based weeks, the declared hip-CAM constraint and the current RAS 500 objective. Inspect it with `coros_read(operation="get_athlete_profile")`.
+Version 1.15.0 supports a versioned athlete profile so stable facts do not depend on chat memory. The public repository ships only a generic example profile with unknown values left unset. Supply your own private profile with `ATHLETE_PROFILE_PATH` or `ATHLETE_PROFILE_JSON`, and inspect it with `coros_read(operation="get_athlete_profile")`.
 
 Override the bundled profile with `ATHLETE_PROFILE_PATH` or `ATHLETE_PROFILE_JSON`. Do not place credentials in this profile. Current pain, illness, fatigue, equipment changes and other time-varying facts must still be supplied at decision time.
 
