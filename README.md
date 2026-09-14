@@ -8,6 +8,32 @@
 
 MCP server for creating and managing COROS strength, running and cycling workouts through the Training Hub API. It includes calendar management, weekly planning, validation and backups. This fork adds a Streamable HTTP endpoint for a private ChatGPT plugin while preserving stdio compatibility.
 
+
+## Try it in 2 minutes — no credentials required
+
+Want to see the training analytics before connecting any account? Start the synthetic demo provider:
+
+```bash
+npm ci
+npm run demo
+```
+
+Then check the installation safely:
+
+```bash
+npm run doctor
+```
+
+Demo mode uses synthetic running, cycling and trail activities only. It never reads COROS, Strava or Garmin accounts.
+
+**Quick start:** [English](docs/QUICKSTART.md) · [Español](docs/QUICKSTART-ES.md)  
+**Free/self-host connection guide:** [English](docs/FREE-CONNECTION-GUIDE.md) · [Español](docs/FREE-CONNECTION-GUIDE-ES.md)  
+**Deployment:** `render.yaml` is included for a simple Render Docker deployment.
+
+### What you can try in demo mode
+
+Use the stable `coros_read` bridge with `providerId: "demo"` to explore `athlete_snapshot`, `training_trends`, `weekly_training_summary`, `personal_bests`, `activity_anomalies`, `similar_activities` and the rest of the provider-neutral analytics.
+
 **Zero-cost connection guide:** [English](docs/FREE-CONNECTION-GUIDE.md) · [Español](docs/FREE-CONNECTION-GUIDE-ES.md)
 
 
