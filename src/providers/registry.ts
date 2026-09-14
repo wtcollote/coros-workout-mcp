@@ -1,4 +1,5 @@
 import { CorosTrainingDataProvider } from "./coros-provider.js";
+import { DemoTrainingDataProvider } from "./demo-provider.js";
 import { FileTrainingDataProvider } from "./file-provider.js";
 import { GarminTrainingDataProvider } from "./garmin-provider.js";
 import { StravaTrainingDataProvider } from "./strava-provider.js";
@@ -22,3 +23,4 @@ registerTrainingDataProvider(new CorosTrainingDataProvider());
 registerTrainingDataProvider(new FileTrainingDataProvider());
 registerTrainingDataProvider(new StravaTrainingDataProvider());
 registerTrainingDataProvider(new GarminTrainingDataProvider());
+registerTrainingDataProvider(new DemoTrainingDataProvider());
