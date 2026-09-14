@@ -1,0 +1,57 @@
+name: Wire final universal toolkit
+on:
+  push:
+    branches: [feature/final-universal-toolkit]
+permissions:
+  contents: write
+jobs:
+  wire:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch bridge and tests
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('src/compatibility-bridge.ts')
+          s=p.read_text()
+          anchor='import { trainingDataStatus, setupCheck, listProviderActivities, trainingTrends, compareActivities, importActivityFile } from "./providers/training-data-analytics.js";\n'
+          ins=anchor+'import { getProviderActivity, weeklyTrainingSummary, trainingLoadBalance, activityAnomalies, personalBests, sportProgression, similarActivities, activityEfficiency, dataQualityReport, athleteSnapshot, routeCheckpointPlan, eventProjection } from "./providers/training-data-insights.js";\n'
+          if 'getProviderActivity, weeklyTrainingSummary' not in s:
+            if anchor not in s: raise SystemExit('import anchor missing')
+            s=s.replace(anchor,ins,1)
+          op_anchor='  { name: "training_data_status",'
+          ops='''  { name: "get_provider_activity", description: "Read one activity detail from any provider implementing activity_detail.", input: { providerId: "coros|strava|garmin", activityId: "string", sportType: "optional integer" } },\n  { name: "weekly_training_summary", description: "Summarize the current seven days and compare them with the previous four weeks.", input: { providerId: "coros|strava|garmin", endDate: "YYYY-MM-DD" } },\n  { name: "training_load_balance", description: "Aggregate provider-supplied training load over configurable windows and by sport.", input: { providerId: "coros|strava|garmin", endDate: "YYYY-MM-DD", windows: "optional integer[]" } },\n  { name: "activity_anomalies", description: "Flag statistically unusual training metrics within each sport without medical interpretation.", input: { providerId: "coros|strava|garmin", endDate: "YYYY-MM-DD", lookbackDays: "optional 14..365" } },\n  { name: "personal_bests", description: "Find observed best distance, duration, elevation, average speed, average power and training load by sport.", input: { providerId: "coros|strava|garmin", endDate: "YYYY-MM-DD", lookbackDays: "optional 30..730" } },\n  { name: "sport_progression", description: "Compare recent and prior halves of a lookback period separately by sport.", input: { providerId: "coros|strava|garmin", endDate: "YYYY-MM-DD", lookbackDays: "optional 28..365" } },\n  { name: "similar_activities", description: "Find historically similar sessions within the same sport using normalized distance, duration, elevation and load differences.", input: { providerId: "coros|strava|garmin", activityId: "string", endDate: "YYYY-MM-DD", lookbackDays: "optional", limit: "optional 1..20" } },\n  { name: "activity_efficiency", description: "Return derived speed/HR, power/HR, load/hour and elevation/hour efficiency metrics without inventing missing data.", input: { providerId: "coros|strava|garmin", endDate: "YYYY-MM-DD", lookbackDays: "optional" } },\n  { name: "data_quality_report", description: "Report normalized activity field completeness before analysis.", input: { providerId: "coros|strava|garmin", endDate: "YYYY-MM-DD", lookbackDays: "optional" } },\n  { name: "athlete_snapshot", description: "Return one provider-neutral current snapshot: latest activity, week, load, bests, progression, anomalies and data quality.", input: { providerId: "coros|strava|garmin", endDate: "YYYY-MM-DD" } },\n  { name: "route_checkpoint_plan", description: "Build GPX checkpoints, timing scenarios and route plan using the existing operational route engine.", input: { gpx: "GPX XML string", startTimeIso: "ISO 8601 with timezone", options: "optional operational-route options" } },\n  { name: "event_projection", description: "Project optimistic, probable and conservative event timing from a GPX route and activity type.", input: { gpx: "GPX XML string", startTimeIso: "ISO 8601 with timezone", activityType: "cycling|road_running|trail_running|walking|hiking", options: "optional operational-route options" } },\n'''
+          if 'name: "get_provider_activity"' not in s:
+            if op_anchor not in s: raise SystemExit('operation anchor missing')
+            s=s.replace(op_anchor,ops+op_anchor,1)
+          schema_anchor='const ProviderActivitiesSchema = z.object('
+          schemas='''const ProviderActivityDetailSchema = z.object({ providerId: z.string().min(1).default("coros"), activityId: z.string().min(1), sportType: z.number().int().optional() });\nconst ProviderEndDateSchema = z.object({ providerId: z.string().min(1).default("coros"), endDate: z.string().min(1) });\nconst LoadBalanceSchema = ProviderEndDateSchema.extend({ windows: z.array(z.number().int().min(1).max(365)).min(1).max(12).default([7,28,42]) });\nconst LookbackSchema = ProviderEndDateSchema.extend({ lookbackDays: z.number().int().min(14).max(730).optional() });\nconst SimilarActivitiesSchema = ProviderEndDateSchema.extend({ activityId: z.string().min(1), lookbackDays: z.number().int().min(30).max(730).default(365), limit: z.number().int().min(1).max(20).default(5) });\nconst RouteToolkitSchema = z.object({ gpx: z.string().min(1), startTimeIso: z.string().min(1), options: z.record(z.string(), z.unknown()).default({}) });\nconst EventProjectionSchema = RouteToolkitSchema.extend({ activityType: z.enum(["cycling","road_running","trail_running","walking","hiking"]).default("cycling") });\n'''
+          if 'const ProviderActivityDetailSchema' not in s:
+            if schema_anchor not in s: raise SystemExit('schema anchor missing')
+            s=s.replace(schema_anchor,schemas+schema_anchor,1)
+          h_anchor='  if (operation === "training_data_status" || operation === "list_training_providers")'
+          handlers='''  if (operation === "get_provider_activity") { const i=ProviderActivityDetailSchema.parse(rawInput); return bridgeEnvelope(operation, await getProviderActivity(i.providerId,i.activityId,i.sportType)); }\n  if (operation === "weekly_training_summary") { const i=ProviderEndDateSchema.parse(rawInput); return bridgeEnvelope(operation, await weeklyTrainingSummary(i.providerId,i.endDate)); }\n  if (operation === "training_load_balance") { const i=LoadBalanceSchema.parse(rawInput); return bridgeEnvelope(operation, await trainingLoadBalance(i.providerId,i.endDate,i.windows)); }\n  if (operation === "activity_anomalies") { const i=LookbackSchema.parse(rawInput); return bridgeEnvelope(operation, await activityAnomalies(i.providerId,i.endDate,i.lookbackDays ?? 90)); }\n  if (operation === "personal_bests") { const i=LookbackSchema.parse(rawInput); return bridgeEnvelope(operation, await personalBests(i.providerId,i.endDate,i.lookbackDays ?? 365)); }\n  if (operation === "sport_progression") { const i=LookbackSchema.parse(rawInput); return bridgeEnvelope(operation, await sportProgression(i.providerId,i.endDate,i.lookbackDays ?? 84)); }\n  if (operation === "similar_activities") { const i=SimilarActivitiesSchema.parse(rawInput); return bridgeEnvelope(operation, await similarActivities(i.providerId,i.activityId,i.endDate,i.lookbackDays,i.limit)); }\n  if (operation === "activity_efficiency") { const i=LookbackSchema.parse(rawInput); return bridgeEnvelope(operation, await activityEfficiency(i.providerId,i.endDate,i.lookbackDays ?? 90)); }\n  if (operation === "data_quality_report") { const i=LookbackSchema.parse(rawInput); return bridgeEnvelope(operation, await dataQualityReport(i.providerId,i.endDate,i.lookbackDays ?? 90)); }\n  if (operation === "athlete_snapshot") { const i=ProviderEndDateSchema.parse(rawInput); return bridgeEnvelope(operation, await athleteSnapshot(i.providerId,i.endDate)); }\n  if (operation === "route_checkpoint_plan") { const i=RouteToolkitSchema.parse(rawInput); return bridgeEnvelope(operation, await routeCheckpointPlan(i.gpx,i.startTimeIso,i.options)); }\n  if (operation === "event_projection") { const i=EventProjectionSchema.parse(rawInput); return bridgeEnvelope(operation, await eventProjection(i.gpx,i.startTimeIso,i.activityType,i.options)); }\n'''
+          if 'operation === "get_provider_activity"' not in s:
+            if h_anchor not in s: raise SystemExit('handler anchor missing')
+            s=s.replace(h_anchor,handlers+h_anchor,1)
+          p.write_text(s)
+          PY
+          cat > src/__tests__/training-data-insights.test.ts <<'EOF'
+          import { describe, expect, it } from "vitest";
+          import { dataQualityReport } from "../providers/training-data-insights.js";
+          describe("final universal toolkit",()=>{ it("exports toolkit function",()=>{ expect(typeof dataQualityReport).toBe("function"); }); });
+          EOF
+      - name: Validate
+        run: |
+          npm ci
+          npm test
+          npm run build
+      - name: Commit implementation
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/compatibility-bridge.ts src/providers/training-data-insights.ts src/__tests__/training-data-insights.test.ts
+          git commit -m 'feat: expose final universal training toolkit'
+          git push origin feature/final-universal-toolkit
