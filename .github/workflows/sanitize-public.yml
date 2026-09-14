@@ -1,0 +1,81 @@
+name: Sanitize public-facing references
+
+on:
+  push:
+    branches: [release/public-sanitize-guide]
+
+permissions:
+  contents: write
+
+jobs:
+  sanitize:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Replace athlete-specific public text
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          replacements = {
+            'README.md': [
+              (
+                'Version 1.15.0 bundles a versioned private-athlete profile so stable facts do not depend on chat memory. The default profile records ultra-cycling as the primary discipline, HR/cadence/decoupling as preferred signals, absence of power data, Monday-based weeks, the declared hip-CAM constraint and the current RAS 500 objective. Inspect it with `coros_read(operation="get_athlete_profile")`.',
+                'Version 1.15.0 supports a versioned athlete profile so stable facts do not depend on chat memory. The public repository ships only a generic example profile with unknown values left unset. Supply your own private profile with `ATHLETE_PROFILE_PATH` or `ATHLETE_PROFILE_JSON`, and inspect it with `coros_read(operation="get_athlete_profile")`.'
+              ),
+              (
+                'See [docs/NEXT-IMPROVEMENTS.md](docs/NEXT-IMPROVEMENTS.md) for the prioritized roadmap.',
+                'See [docs/NEXT-IMPROVEMENTS.md](docs/NEXT-IMPROVEMENTS.md) for the prioritized roadmap. For zero-cost hosting and connection options, see [docs/FREE-CONNECTION-GUIDE.md](docs/FREE-CONNECTION-GUIDE.md).'
+              ),
+            ],
+            'docs/RELEASE-1.15.0.md': [
+              ('post-long-session recovery, same-day stacking, completed work, strength near key sessions, consecutive demanding days and repeated impact under the declared hip-CAM constraint', 'post-long-session recovery, same-day stacking, completed work, strength near key sessions, consecutive demanding days and repeated impact when an athlete declares an impact-sensitive constraint'),
+              ('primary discipline: ultra-cycling;', 'primary discipline: configurable endurance discipline;'),
+              ('declared hip-CAM constraint;', 'optional athlete-declared constraints;'),
+              ('RAS 500 objective: approximately 505 km, 8,000 m ascent and 30-hour target.', 'event objectives: configurable distance, ascent, priority and target timing.'),
+            ],
+            'src/route-analysis.ts': [
+              ('coros-workout-chatgpt/1.9.2 github.com/davidsegade/coros-workout-chatgpt', 'coros-workout-mcp/2.2.4'),
+            ],
+            'src/__tests__/athlete-intelligence.test.ts': [
+              ('objective:{name:"RAS",eventDate:"20260918",priority:"A",discipline:"ultra_endurance"}', 'objective:{name:"A Event",eventDate:"20260918",priority:"A",discipline:"ultra_endurance"}'),
+            ],
+            'src/__tests__/training-context.test.ts': [
+              ('name: "Fondo específico RAS"', 'name: "Long endurance session"'),
+            ],
+            'src/training-context.ts': [
+              ('code: "hip_cam_impact_density", message: "Running/trail impact is repeated within 48 h under the declared hip CAM constraint."', 'code: "impact_density_warning", message: "Running/trail impact is repeated within 48 h while an impact-sensitive constraint is active."'),
+            ],
+          }
+
+          for filename, pairs in replacements.items():
+            path = Path(filename)
+            text = path.read_text()
+            for old, new in pairs:
+              if old not in text:
+                raise SystemExit(f'Expected text not found in {filename}: {old[:100]}')
+              text = text.replace(old, new)
+            path.write_text(text)
+          PY
+      - name: Check forbidden athlete-specific references
+        run: |
+          set -euo pipefail
+          if grep -RniE 'RAS 500|Fondo específico RAS|hip-CAM|hip CAM constraint|davidsegade/coros-workout-chatgpt' README.md docs src data --exclude='exercises.json'; then
+            echo 'Athlete-specific references remain' >&2
+            exit 1
+          fi
+      - name: Validate
+        run: |
+          npm ci
+          npm test
+          npm run build
+      - name: Commit sanitized public tree
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add README.md docs/RELEASE-1.15.0.md src/route-analysis.ts src/__tests__/athlete-intelligence.test.ts src/__tests__/training-context.test.ts src/training-context.ts
+          git commit -m 'Sanitize athlete-specific public references'
+          git push origin release/public-sanitize-guide
