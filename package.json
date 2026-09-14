@@ -14,7 +14,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "start": "node dist/src/http-server.js",
-    "start:stdio": "node dist/src/stdio-server.js"
+    "start:stdio": "node dist/src/stdio-server.js",
+    "demo": "tsx scripts/demo.ts",
+    "doctor": "tsx scripts/doctor.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",
