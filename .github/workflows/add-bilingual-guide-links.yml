@@ -1,0 +1,46 @@
+name: Add bilingual guide links
+
+on:
+  push:
+    branches: [docs/bilingual-free-guide]
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add README guide links
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('README.md')
+          text = p.read_text()
+          anchor = 'MCP server for creating and managing COROS strength, running and cycling workouts through the Training Hub API. It includes calendar management, weekly planning, validation and backups. This fork adds a Streamable HTTP endpoint for a private ChatGPT plugin while preserving stdio compatibility.\n'
+          insert = anchor + '\n**Zero-cost connection guide:** [English](docs/FREE-CONNECTION-GUIDE.md) · [Español](docs/FREE-CONNECTION-GUIDE-ES.md)\n'
+          if 'FREE-CONNECTION-GUIDE-ES.md' not in text:
+              if anchor not in text:
+                  raise SystemExit('README anchor not found')
+              text = text.replace(anchor, insert, 1)
+              p.write_text(text)
+          PY
+      - name: Validate docs and project
+        run: |
+          test -f docs/FREE-CONNECTION-GUIDE.md
+          test -f docs/FREE-CONNECTION-GUIDE-ES.md
+          grep -q 'Español' docs/FREE-CONNECTION-GUIDE.md
+          grep -q 'English' docs/FREE-CONNECTION-GUIDE-ES.md
+          npm ci
+          npm test
+          npm run build
+      - name: Commit README links
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add README.md
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'docs: link English and Spanish connection guides'
+          git push origin docs/bilingual-free-guide
