@@ -25,7 +25,7 @@ jobs:
           curl -fL "$SNAPSHOT_URL" -o /tmp/public-clean-snapshot.zip
           mkdir -p /tmp/artifact /tmp/source
           unzip -q /tmp/public-clean-snapshot.zip -d /tmp/artifact
-          sha256sum -c /tmp/artifact/public-snapshot.sha256
+          (cd /tmp/artifact && sha256sum -c public-snapshot.sha256)
           tar -xzf /tmp/artifact/public-snapshot.tar.gz -C /tmp/source
 
       - name: Prepare public source tree
