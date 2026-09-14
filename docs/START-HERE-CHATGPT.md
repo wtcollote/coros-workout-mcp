@@ -45,10 +45,16 @@ This option creates **your own private server**. Your credentials are never shar
 
 ### Step 1 — Create your Render service
 
-Once the repository is public, open:
+Open:
 
 ```text
-https://render.com/deploy?repo=https://github.com/davidsegade/coros-workout-connector-o-coros-workout-chatgpt-public
+https://render.com/deploy?repo=https://github.com/wtcollote/coros-workout-mcp
+```
+
+Public repository:
+
+```text
+https://github.com/wtcollote/coros-workout-mcp
 ```
 
 Render will use the included `render.yaml` blueprint.
