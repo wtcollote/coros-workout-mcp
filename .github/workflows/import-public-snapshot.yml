@@ -19,7 +19,7 @@ jobs:
 
       - name: Download validated snapshot
         env:
-          SNAPSHOT_URL: "https://sdmntprnortheu.oaiusercontent.com/files/00000000-bb44-81f4-b18b-3e38e0124ed7/raw?se=2026-09-14T10%3A00%3A31Z&sp=r&sv=2026-02-06&sr=b&scid=3f3ec64e-13ef-5496-9990-f8dc9d25c4d6&skoid=1d6acb5b-b3f4-43ec-a5ec-b05c4a7708c8&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-14T06%3A57%3A57Z&ske=2026-09-15T06%3A57%3A57Z&sks=b&skv=2026-02-06&sig=ERHHUcyhwBy7ovyMSLzNyfySSZKW93tTmqHDU1XYugg%3D"
+          SNAPSHOT_URL: "https://sdmntprwestus.oaiusercontent.com/files/00000000-ec10-8230-93d6-9cd2fc7a3487/raw?se=2026-09-14T10%3A02%3A37Z&sp=r&sv=2026-02-06&sr=b&scid=f0349bfc-dfb1-576a-a698-3addcd870a76&skoid=1d6acb5b-b3f4-43ec-a5ec-b05c4a7708c8&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-14T01%3A47%3A02Z&ske=2026-09-15T01%3A47%3A02Z&sks=b&skv=2026-02-06&sig=WBXWe3%2B1fMV6vem3Y9P6SNq3OdX/JyxxGd0Ryf0aZT4%3D"
         run: |
           set -euo pipefail
           curl -fL "$SNAPSHOT_URL" -o /tmp/public-clean-snapshot.zip
@@ -32,15 +32,14 @@ jobs:
         run: |
           set -euo pipefail
           rm -f /tmp/source/gitleaks
-          rm -f /tmp/source/.github/workflows/public-clean-snapshot.yml
+          rm -rf /tmp/source/.github/workflows
           rm -f /tmp/source/docs/public-release-cleanup.md
           rm -f /tmp/source/docs/legacy-nested-copy.md
           rm -f /tmp/source/CLAUDE.md
           rsync -a --delete \
             --exclude='.git' \
-            --exclude='.github/workflows/import-public-snapshot.yml' \
+            --exclude='.github/workflows/' \
             /tmp/source/ ./
-          rm -f .github/workflows/import-public-snapshot.yml
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -70,6 +69,6 @@ jobs:
           rm -rf dist
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
+          git add -A -- ':!.github/workflows'
           git commit -m "Import validated clean public source"
           git push origin main
