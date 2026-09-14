@@ -5,7 +5,15 @@ services:
     plan: free
     healthCheckPath: /
     envVars:
+      - key: COROS_EMAIL
+        sync: false
+      - key: COROS_PASSWORD
+        sync: false
+      - key: COROS_REGION
+        value: eu
       - key: COROS_ALLOW_UNOFFICIAL_MOBILE_LOGIN
+        value: "false"
+      - key: COROS_PUBLIC_DEMO
         value: "false"
       - key: TRAINING_DATA_PROVIDER_ID
         value: coros
