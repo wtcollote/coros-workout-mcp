@@ -24,8 +24,9 @@ import { coachStateStorageInfo, readCoachState, updateCoachState } from "./coach
 import { buildAthleteIntelligence, buildRecoveryModel, buildResidualFatigueModel, buildSessionFingerprints, buildPerformanceTrend, buildDoseOptimizer, buildEventReadiness, buildAnomalyAndQuality } from "./athlete-intelligence.js";
 import { trainingDataStatus, setupCheck, listProviderActivities, trainingTrends, compareActivities, importActivityFile } from "./providers/training-data-analytics.js";
 import { getProviderActivity, weeklyTrainingSummary, trainingLoadBalance, activityAnomalies, personalBests, sportProgression, similarActivities, activityEfficiency, dataQualityReport, athleteSnapshot, routeCheckpointPlan, eventProjection } from "./providers/training-data-insights.js";
+import { createRoutedGpx } from "./route-builder.js";
 
-export const CONNECTOR_VERSION = "2.2.4";
+export const CONNECTOR_VERSION = "2.2.5";
 export const EXPECTED_TOOL_COUNT = 56;
 export const COMPATIBILITY_BRIDGE_VERSION = "2";
 
@@ -42,6 +43,7 @@ export const CONNECTOR_FEATURES = [
   "fit-analysis",
   "physiological-profile",
   "gpx-route-analysis",
+  "routed-gpx-generation",
   "route-weather",
   "ultra-simulation",
   "multisport-operational-route-planning",
@@ -88,6 +90,7 @@ interface OperationDescriptor {
 }
 
 export const READ_OPERATIONS: OperationDescriptor[] = [
+  { name: "create_routed_gpx", description: "Create a street-routed GPX from ordered coordinates using OpenStreetMap routing; supports walking and cycling.", input: { waypoints: "array of {name?, latitude, longitude}, 2..50", profile: "walking | cycling (optional; walking)", name: "optional route name" } },
   { name: "get_provider_activity", description: "Read one activity detail from any provider implementing activity_detail.", input: { providerId: "coros|strava|garmin", activityId: "string", sportType: "optional integer" } },
   { name: "weekly_training_summary", description: "Summarize the current seven days and compare them with the previous four weeks.", input: { providerId: "coros|strava|garmin", endDate: "YYYY-MM-DD" } },
   { name: "training_load_balance", description: "Aggregate provider-supplied training load over configurable windows and by sport.", input: { providerId: "coros|strava|garmin", endDate: "YYYY-MM-DD", windows: "optional integer[]" } },
@@ -286,6 +289,16 @@ const SeasonSchema = z.object({ officialSleepRecords: OfficialSleepSchema, date:
 const EvaluateDecisionSchema = z.object({ officialSleepRecords: OfficialSleepSchema, priorDecision: z.enum(["stop_and_assess","rest","recover","reduce","maintain","progress","insufficient_data"]), priorDate: z.string().min(1), evaluationDate: z.string().min(1) });
 const DashboardSnapshotSchema = z.object({ date: z.string().min(1), objective: ObjectiveSchema, plannedDurationSeconds: z.number().positive().optional().default(3600), officialSleepRecords: OfficialSleepSchema });
 
+const RoutedGpxSchema = z.object({
+  waypoints: z.array(z.object({
+    name: z.string().max(120).optional(),
+    latitude: z.number().min(-90).max(90),
+    longitude: z.number().min(-180).max(180),
+  })).min(2).max(50),
+  profile: z.enum(["walking", "cycling"]).optional().default("walking"),
+  name: z.string().min(1).max(120).optional().default("Routed route"),
+});
+
 const AssignSchema = z.object({ workoutId: z.string().min(1), date: z.string().min(1) });
 const MoveSchema = z.object({ sourceDate: z.string().min(1), idInPlan: z.string().min(1), newDate: z.string().min(1) });
 const RemoveSchema = z.object({ planId: z.string().min(1), idInPlan: z.string().min(1), planProgramId: z.string().min(1).optional() });
@@ -333,6 +346,11 @@ export async function getCompatibilityCapabilities(): Promise<JsonObject> {
 
 export async function executeCompatibilityRead(operation: string, rawInput: JsonObject): Promise<JsonObject> {
   if (!READ_OPERATIONS.some((item) => item.name === operation)) unknownOperation("read", operation);
+
+  if (operation === "create_routed_gpx") {
+    const input = RoutedGpxSchema.parse(rawInput);
+    return bridgeEnvelope(operation, await createRoutedGpx(input.waypoints, input.profile, input.name));
+  }
 
   if (operation === "connector_status") {
     const auth = await getValidAuth();
