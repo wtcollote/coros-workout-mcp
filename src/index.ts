@@ -56,6 +56,7 @@ import {
 } from "./exercise-catalog.js";
 import type { Region } from "./types.js";
 import { analyzeGpxRoute, analyzeRouteWeather, simulateUltraRoute } from "./route-analysis.js";
+import { createRoutedGpx } from "./route-builder.js";
 import { planOperationalRoute } from "./operational-route.js";
 import { analyzeActivityContext, classifyTrainingDay } from "./activity-context.js";
 import { buildMultisportLoadReport, calibrateSportPerformance } from "./performance-calibration.js";
@@ -1634,6 +1635,31 @@ server.tool(
       }, null, 2) }] };
     } catch (error) {
       return { content: [{ type: "text" as const, text: `Failed to assess taper readiness: ${error instanceof Error ? error.message : String(error)}` }], isError: true };
+    }
+  }
+);
+
+const RoutingWaypointSchema = z.object({
+  name: z.string().max(120).optional(),
+  latitude: z.number().min(-90).max(90),
+  longitude: z.number().min(-180).max(180),
+});
+
+server.tool(
+  "create_routed_gpx",
+  "Create a real street-routed GPX from ordered waypoints using OpenStreetMap routing. Supports walking and cycling and returns complete GPX track geometry.",
+  {
+    waypoints: z.array(RoutingWaypointSchema).min(2).max(50),
+    profile: z.enum(["walking", "cycling"]).default("walking"),
+    name: z.string().min(1).max(120).default("Routed route"),
+  },
+  { readOnlyHint: true, destructiveHint: false, openWorldHint: true },
+  async ({ waypoints, profile, name }) => {
+    try {
+      const result = await createRoutedGpx(waypoints, profile, name);
+      return { content: [{ type: "text" as const, text: JSON.stringify(result, null, 2) }] };
+    } catch (error) {
+      return { content: [{ type: "text" as const, text: `Failed to create routed GPX: ${error instanceof Error ? error.message : String(error)}` }], isError: true };
     }
   }
 );
